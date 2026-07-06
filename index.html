@@ -3959,6 +3959,38 @@
         min-width: 0;
       }
     }
+
+    @media (max-width: 768px) {
+      /* Hide complex and heavy view tabs that are clunky on mobile */
+      .view-tab[data-view="dashboard"],
+      .view-tab[data-view="calendar"],
+      .view-tab[data-view="timeline"] {
+        display: none !important;
+      }
+
+      /* Hide non-essential topbar tools on mobile */
+      .topbar-tools .tool-btn:not(#teamToolBtn) {
+        display: none !important;
+      }
+
+      /* Layout sort and team buttons inline */
+      .topbar-tools {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 8px !important;
+        border-top: none !important;
+        padding-top: 0 !important;
+        margin-top: 4px !important;
+      }
+
+      .topbar-tools .toolbar-select,
+      .topbar-tools #teamToolBtn {
+        flex: 1 !important;
+        width: 50% !important;
+        min-width: 0 !important;
+      }
+    }
   </style>
 </head>
 
@@ -4888,8 +4920,12 @@
     var templateState = JSON.parse(localStorage.getItem('taskflow_templates') || '[]');
     var momentumState = JSON.parse(localStorage.getItem('taskflow_momentum') || '{}');
     var lastDeletedTask = null;
-    // Use deployed backend by default. Change here if you need a different backend for local dev.
-    var API_BASE = 'https://sr-task-flow-backend.onrender.com';
+    // Dynamically detect if running locally and fall back to local backend port 3001 if so
+    var API_BASE = (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.protocol === 'file:'
+    ) ? 'http://localhost:3001' : 'https://sr-task-flow-backend.onrender.com';
     var authToken = localStorage.getItem('taskflow_token') || '';
     var currentUser = JSON.parse(localStorage.getItem('taskflow_user') || 'null');
     var authMode = 'login';
@@ -5773,6 +5809,7 @@
 
     function showHome() {
       activeProjectId = null;
+      closeSidebar();
       document.body.classList.add('workspace-home');
       document.body.classList.remove('member-project');
       document.getElementById('topbarTitle').textContent = 'Workspace Home';
